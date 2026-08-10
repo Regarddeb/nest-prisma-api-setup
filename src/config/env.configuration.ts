@@ -14,5 +14,22 @@ export default () => ({
     name: process.env.DB_NAME,
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
+    url: process.env.DB_URL,
+  },
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    anonKey: process.env.SUPABASE_ANON_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    jwtSecret: process.env.SUPABASE_JWT_SECRET,
+  },
+  throttle: {
+    ttl: parseInt(process.env.THROTTLE_TTL ?? '60000', 10),
+    limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
+  },
+  log: {
+    level: process.env.LOG_LEVEL ?? 'info',
+  },
+  cors: {
+    origin: process.env.CORS_ORIGIN ?? '*',
   },
 });

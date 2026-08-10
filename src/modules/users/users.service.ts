@@ -7,12 +7,6 @@ import { DatabaseService } from 'src/modules/database/database.service';
 export class UsersService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(data: Prisma.UserCreateInput) {
-    return this.databaseService.user.create({
-      data,
-    });
-  }
-
   async findAll(params: {
     skip?: number;
     take?: number;
