@@ -18,23 +18,15 @@ export const envSchema = z.object({
     .enum(['development', 'production', 'test', 'staging'])
     .default('development'),
 
-  DB_CONNECTION: z
-    .enum(['mysql', 'postgresql', 'sqlite', 'mongodb'])
-    .default('mysql'),
-  DB_HOST: z.string().min(1, 'DB_HOST is required'),
-  DB_PORT: z
-    .string()
-    .transform((val) => parseInt(val, 10))
-    .pipe(
-      z.number().int().min(1).max(65535, 'DB_PORT must be between 1 and 65535'),
-    ),
-  DB_NAME: z.string().min(1, 'DB_NAME is required'),
-  // Read directly by Prisma via `env("DB_URL")` in schema.prisma — must stay in
-  // this schema so @nestjs/config's `validate` re-assigns it onto process.env
+  // Both read directly by Prisma via `env(...)` in schema.prisma — must stay in
+  // this schema so @nestjs/config's `validate` re-assigns them onto process.env
   // (it only re-assigns keys present in the validator's return value).
+  // DB_URL: Supabase's pooled ("Transaction" mode / port 6543) connection string,
+  // used by the app at runtime.
   DB_URL: z.string().min(1, 'DB_URL is required'),
-  DB_USERNAME: z.string().min(1, 'DB_USERNAME is required'),
-  DB_PASSWORD: z.string().optional().default(''),
+  // DIRECT_URL: Supabase's direct (port 5432) connection string, used only by
+  // Prisma Migrate — the pooler doesn't support the prepared statements migrations need.
+  DIRECT_URL: z.string().min(1, 'DIRECT_URL is required'),
 
   SUPABASE_URL: z.string().url('SUPABASE_URL must be a valid URL'),
   SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY is required'),
