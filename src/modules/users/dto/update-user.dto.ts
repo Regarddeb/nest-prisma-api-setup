@@ -1,4 +1,16 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateUserDto } from './ceate-user.dto';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
-export class UpdateUserDTO extends PartialType(CreateUserDto) {}
+export class UpdateUserDto {
+  @ApiPropertyOptional({ example: 'Jane Doe' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Deactivate a user without deleting their record',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+}

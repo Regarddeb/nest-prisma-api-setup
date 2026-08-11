@@ -1,29 +1,29 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
   ParseIntPipe,
+  Patch,
   Query,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { Prisma } from 'generated/prisma';
-import { UpdateUserDTO } from './dto/update-user.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PERMISSIONS } from 'src/common/constants/permissions.constant';
+import { Permissions } from 'src/common/decorators/permissions.decorator';
 import { FindAllUsersQueryDto } from './dto/find-all-users.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
+@ApiTags('users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: Prisma.UserCreateInput) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
+  @Permissions(PERMISSIONS.USERS_READ)
+  @ApiOperation({ summary: 'List users' })
   findAll(@Query() query: FindAllUsersQueryDto) {
     return this.usersService.findAll({
       skip: query.skip,
@@ -35,19 +35,25 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: Prisma.UserWhereUniqueInput) {
-    return this.usersService.findOne(id);
+  @Permissions(PERMISSIONS.USERS_READ)
+  @ApiOperation({ summary: 'Get a user by id' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOne({ id });
   }
 
   @Patch(':id')
+  @Permissions(PERMISSIONS.USERS_UPDATE)
+  @ApiOperation({ summary: "Update a user's profile" })
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDTO,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update({ where: { id }, data: updateUserDto });
   }
 
   @Delete(':id')
+  @Permissions(PERMISSIONS.USERS_DELETE)
+  @ApiOperation({ summary: 'Delete a user' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove({ id });
   }
