@@ -8,13 +8,8 @@ export default () => ({
     env: process.env.NODE_ENV,
   },
   database: {
-    connection: process.env.DB_CONNECTION,
-    host: process.env.DB_HOST ?? 'localhost',
-    port: parseInt(process.env.DB_PORT ?? '3306', 10),
-    name: process.env.DB_NAME,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
     url: process.env.DB_URL,
+    directUrl: process.env.DIRECT_URL,
   },
   supabase: {
     url: process.env.SUPABASE_URL,

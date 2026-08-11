@@ -33,7 +33,8 @@ cp .env.example .env
 | --- | --- |
 | `APP_NAME`, `APP_URL`, `APP_PORT` | Basic app metadata / listen port. |
 | `NODE_ENV` | `development` \| `production` \| `test` \| `staging`. |
-| `DB_URL` (+ `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USERNAME`/`DB_PASSWORD`) | MySQL connection, used by Prisma. |
+| `DB_URL` | Supabase Postgres **pooled** connection string (port `6543`, `?pgbouncer=true`). Used by the app at runtime. |
+| `DIRECT_URL` | Supabase Postgres **direct** connection string (port `5432`, no pooler). Used only by `prisma migrate` — pgbouncer's transaction mode doesn't support the prepared statements migrations need. |
 | `SUPABASE_URL` | Your Supabase project URL, e.g. `https://xxxx.supabase.co`. |
 | `SUPABASE_ANON_KEY` | Project Settings → API → `anon` `public` key. Used for the user-facing auth client (signUp/signIn/refresh). |
 | `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API → `service_role` key. **Server-side only, never expose this.** Used for admin operations (e.g. revoking sessions on logout). |
@@ -44,13 +45,25 @@ cp .env.example .env
 
 > **Note on Supabase JWT verification**: this boilerplate verifies access tokens against the legacy shared `SUPABASE_JWT_SECRET` (HS256). Newer Supabase projects can opt into asymmetric "JWT Signing Keys" (ES256/RS256) instead — if you've enabled that, you'd need to switch `JwtAuthGuard` to JWKS-based verification instead of `jsonwebtoken.verify(token, secret)`.
 
-### Database
+### Database (Supabase Postgres)
+
+The app uses Supabase's own Postgres database, not a separate MySQL instance — one Supabase project covers both auth and data.
+
+Get your connection strings from **Project Settings → Database → Connection string** in the Supabase dashboard:
+
+- Copy the **Transaction** pooler string (port `6543`) into `DB_URL` — add `?pgbouncer=true` if it isn't already there.
+- Copy the **direct** connection string (port `5432`) into `DIRECT_URL`.
+
+(These are separate from the `SUPABASE_*` API keys above — they live under "Database", not "API".)
 
 ```bash
-npx prisma generate       # generate the Prisma client into ./generated/prisma
-npx prisma migrate deploy # apply migrations (use `migrate dev` in local dev)
-npm run prisma:seed       # seed baseline permissions + admin/user roles
+npx prisma generate           # generate the Prisma client into ./generated/prisma
+npx prisma migrate dev --name init  # first run: creates prisma/migrations/ against your Supabase DB
+npx prisma migrate deploy     # subsequent environments: apply existing migrations
+npm run prisma:seed           # seed baseline permissions + admin/user roles
 ```
+
+> `prisma/migrations/` is currently empty — run `migrate dev` once against a real Supabase connection to generate the initial migration; there's no local Postgres in this dev sandbox to generate one against ahead of time.
 
 The seed script (`prisma/seed.ts`) creates the permission keys used by `@Permissions()` decorators throughout the API (see `src/common/constants/permissions.constant.ts`) and two roles:
 
