@@ -34,7 +34,7 @@
     "@nestjs/throttler": "^6.5.0",
     "@prisma/client": "^7.9.1",
     "@supabase/auth-js": "^2.112.4",
-    "@supabase/supabase-js": "^2.112.3",
+    "@supabase/supabase-js": "^2.112.4",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "helmet": "^8.3.0",
